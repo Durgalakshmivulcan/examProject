@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SharePoint JavaScript Example</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>SharePoint JavaScript Example</h1>
+    
+    <button onclick="getListItems()">Retrieve List Items</button>
+    
+    <ul id="listItems"></ul>
+
+    <script type="text/javascript">
+
+        // SharePoint site URL
+        var siteUrl = "https://your-sharepoint-site-url";
+        
+        // SharePoint list name
+        var listName = "SampleList";
+
+        // Function to get list items from SharePoint
+        function getListItems() {
+            var restUrl = siteUrl + "/_api/web/lists/getbytitle('" + listName + "')/items";
+
+            $.ajax({
+                url: restUrl,
+                type: "GET",
+                headers: {
+                    "Accept": "application/json;odata=verbose"
+                },
+                cache: false,
+                success: function (data) {
+                    displayListItems(data.d.results);
+                },
+                error: function (error) {
+                    alert(JSON.stringify(error));
+                }
+            });
+        }
+
+
+function addNewItemInList(restUrl, data) {
+    $.ajax({
+        url: restUrl,
+        type: "POST",
+                data: JSON.stringify(data),
+        headers: {
+            "Accept": "application/json;odata=verbose",
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+            "Content-Type": "application/json;odata=verbose",
+            "X-HTTP-Method": "POST"
+        },       
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (error) {
+            console.log(JSON.stringify(error));
+        }
+    });
+}
+
+
+
+
+function updateListItemInList()  
+{  
+    $.ajax({  
+        url: restUrl,
+        type: "POST",  
+        data: JSON.stringify  
+        ({  
+            __metadata:  
+            {  
+                type: "SP.Data.SpListCRUDListItem"  
+            },  
+            Title: ‘Some Value’  
+        }),  
+        headers:  
+        {  
+            "Accept": "application/json;odata=verbose",  
+            "Content-Type": "application/json;odata=verbose",  
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+            "IF-MATCH": "*",  
+            "X-HTTP-Method": "MERGE"  
+        },  
+        success: function(data)  
+        {  
+            console.log(data);  
+        },  
+        error: function(error)  
+        {  
+            console.log(JSON.stringify(error));  
+        }  
+    });
+}
+
+
+function deleteListItemInList()  
+{  
+    $.ajax({  
+        url: restUrl,  
+        type: "POST",  
+        headers:  
+        {  
+            "X-RequestDigest": $("#__REQUESTDIGEST").val(),  
+            "IF-MATCH": "*",  
+            "X-HTTP-Method": "DELETE"  
+        },  
+        success: function(data)  
+        {  
+            console.log(data);  
+        },  
+        error: function(error)  
+        {  
+            console.log(error);  
+        }  
+    });  
+}  
+
+        // Function to display list items on the page
+        function displayListItems(items) {
+            var listItemsContainer = $("#listItems");
+            listItemsContainer.empty();
+
+            items.forEach(function (item) {
+                var listItem = $("<li>").text("Title: " + item.Title + " - Description: " + item.Description);
+                listItemsContainer.append(listItem);
+            });
+        }
+
+    </script>
+</body>
+</html>
